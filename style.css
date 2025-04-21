@@ -7,7 +7,10 @@ body {
 .logo-button {
   border: none;
   background-color: inherit;
-  margin-left: 34%;
+  /*margin-left: 45%;*/
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   font-size: 45px;
   font-family: 'Rubik Gemstones';
   font-weight: bold;
@@ -57,7 +60,24 @@ body {
 }
 
 .answ-button {
+  align-items: center;
+}
+
+.actual-game-buttons {
+  display: flex;
+  
+  flex-direction: column;
+  
+  /*flex-direction: row;*/
+  /*flex-wrap: wrap;*/
+
+  /*align-items: center;*/
+  /*justify-content: space-around;*/
   text-transform: none;
+}
+
+.answ-button:hover {
+  transform: scale(105%) rotate(-0.3deg);
 }
 
 .hidden {

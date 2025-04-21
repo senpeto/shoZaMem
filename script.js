@@ -17,9 +17,12 @@ const gameButtonAnsw2Class = document.querySelector(".answ2-button");
 const gameButtonAnsw3Class = document.querySelector(".answ3-button");
 const gameButtonAnsw4Class = document.querySelector(".answ4-button");
 
+const maxQuestions = 10;
+
 // vars
 let dbQuestions = [];
 let rightAnswersArr = [];
+let queuedQuestions = [];
 let rightAnswers = 0;
 let questionCounter = 0;
 const totallyRandomCharArray =
@@ -114,8 +117,10 @@ mainContactsButtonClass.addEventListener("click", function () {
 async function goToGame() {
   console.log("GOOOOOOOOL");
   dbQuestions = await loadDataFromDB();
+  queuedQuestions = generateIndexArray(maxQuestions, dbQuestions.length - 2);
   rightAnswersArr = getRightAnswers(dbQuestions[0].img, dbQuestions.length - 1);
   dbQuestions.shift(); // убираєм 0 ід з ключами
+  // console.log( queuedQuestions );
   //  console.log(dbQuestions);
   //  console.log(rightAnswersArr);
   questionCounter = 0;
@@ -154,9 +159,23 @@ function getRightAnswers(num, count) {
   return answers;
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function generateIndexArray(size, max) {
+  let currentInt;
+  let arr = new Array(size);
+  for( let i = 0; i < size; i++ ) {
+    while( arr.includes( currentInt = getRandomInt(max+1), 0 ) );
+    arr[i] = currentInt;
+  }
+  return arr;
+}
+
 function checkIsAnswerRight(buttNum) {
   // перевірка правильності відповіді + перехід на наступне питання (todo)
-  if (buttNum === rightAnswersArr[questionCounter - 1]) {
+  if (buttNum === rightAnswersArr[queuedQuestions[questionCounter-1]]) {
     rightAnswers++;
   }
 
@@ -164,7 +183,7 @@ function checkIsAnswerRight(buttNum) {
     "got " +
       buttNum +
       ", right - " +
-      rightAnswersArr[questionCounter - 1] +
+      rightAnswersArr[queuedQuestions[questionCounter-1]] +
       "\r\nCurrent score - " +
       rightAnswers
   );
@@ -174,33 +193,33 @@ function checkIsAnswerRight(buttNum) {
 
 function updateGame() {
   // оновлення сторінки
-  if (questionCounter < dbQuestions.length) {
+  if (questionCounter < maxQuestions) {
     mainGameClass.setHTMLUnsafe(
-      updateGameTextAndImg(dbQuestions, questionCounter)
+      updateGameTextAndImg(dbQuestions, questionCounter, queuedQuestions)
     );
 
-    gameButtonAnsw1Class.textContent = dbQuestions[questionCounter].answer1;
-    gameButtonAnsw2Class.textContent = dbQuestions[questionCounter].answer2;
-    gameButtonAnsw3Class.textContent = dbQuestions[questionCounter].answer3;
-    gameButtonAnsw4Class.textContent = dbQuestions[questionCounter].answer4;
+    gameButtonAnsw1Class.textContent = dbQuestions[queuedQuestions[questionCounter]].answer1;
+    gameButtonAnsw2Class.textContent = dbQuestions[queuedQuestions[questionCounter]].answer2;
+    gameButtonAnsw3Class.textContent = dbQuestions[queuedQuestions[questionCounter]].answer3;
+    gameButtonAnsw4Class.textContent = dbQuestions[queuedQuestions[questionCounter]].answer4;
     questionCounter++;
   } else {
     hideAll();
     mainGameClass.setHTMLUnsafe(
-      updateGameFinal(finalResults, (100 / dbQuestions.length) * rightAnswers)
+      updateGameFinal(finalResults, (100 / maxQuestions) * rightAnswers)
     );
     mainGameClass.classList.remove("hidden");
   }
 }
 
-function updateGameTextAndImg(arr, num) {
+function updateGameTextAndImg(arr, counter, num) {
   /*
   return `
-  <img src=${arr[num].img} height="350" width="350" alt="img" />
-  <p>${arr[num].name}</p>`;
+  <img src=${arr[num[counter]].img} height="350" width="350" alt="img" />
+  <p>${arr[num[counter]].name}</p>`;
   */
   // без текста під картинкою буде
-  return `<img src=${arr[num].img} height="350" width="350" alt="img" />`;
+  return `<img src=${arr[num[counter]].img} height="350" width="350" alt="img" />`;
 }
 
 function updateGameFinal(finArr, finalScore) {
